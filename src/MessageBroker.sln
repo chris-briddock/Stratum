@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBroker", "MessageBroker\MessageBroker.csproj", "{F10C0B1F-E2D6-41CD-A0E6-1A8978B38B38}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBroker.IntegrationTests", "MessageBroker.Tests\MessageBroker.IntegrationTests\MessageBroker.IntegrationTests.csproj", "{CE4D0496-9039-4492-8BE5-12B745FBB78C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBroker.UnitTests", "MessageBroker.Tests\MessageBroker.UnitTests\MessageBroker.UnitTests.csproj", "{CCA25A89-5D8A-49A3-8A54-60756A11AAF4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F10C0B1F-E2D6-41CD-A0E6-1A8978B38B38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F10C0B1F-E2D6-41CD-A0E6-1A8978B38B38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F10C0B1F-E2D6-41CD-A0E6-1A8978B38B38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F10C0B1F-E2D6-41CD-A0E6-1A8978B38B38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE4D0496-9039-4492-8BE5-12B745FBB78C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE4D0496-9039-4492-8BE5-12B745FBB78C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE4D0496-9039-4492-8BE5-12B745FBB78C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE4D0496-9039-4492-8BE5-12B745FBB78C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCA25A89-5D8A-49A3-8A54-60756A11AAF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCA25A89-5D8A-49A3-8A54-60756A11AAF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCA25A89-5D8A-49A3-8A54-60756A11AAF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCA25A89-5D8A-49A3-8A54-60756A11AAF4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CE4D0496-9039-4492-8BE5-12B745FBB78C} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{CCA25A89-5D8A-49A3-8A54-60756A11AAF4} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+	EndGlobalSection
+EndGlobal
