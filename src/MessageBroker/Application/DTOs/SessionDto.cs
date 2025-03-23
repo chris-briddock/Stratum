@@ -5,7 +5,7 @@
 /// This class is used to transfer essential session data between layers
 /// while excluding unnecessary details for improved performance and clarity.
 /// </summary>
-public class SessionDto
+public sealed class SessionDto
 {
     /// <summary>
     /// Gets or sets the current status of the session.

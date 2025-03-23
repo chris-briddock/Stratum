@@ -4,8 +4,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Persistence.Configurations;
 
+/// <summary>
+/// Configures the database schema for the <see cref="Subscription"/> entity.
+/// Implements the <see cref="IEntityTypeConfiguration{TEntity}"/> interface.
+/// </summary>
 public sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
 {
+    /// <summary>
+    /// Configures the entity of type <see cref="Subscription"/>.
+    /// </summary>
+    /// <param name="builder">The builder used to configure the entity.</param>
     public void Configure(EntityTypeBuilder<Subscription> builder)
     {
         builder.ToTable("SYSTEM_SUBSCRIPTIONS", opt => opt.IsTemporal());
@@ -60,8 +68,8 @@ public sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscri
                .HasColumnName("is_deleted")
                .IsRequired();
 
-         builder.HasIndex(ca => ca.ConcurrencyStamp)
-                .IsUnique();
+        builder.HasIndex(ca => ca.ConcurrencyStamp)
+               .IsUnique();
 
         builder.HasOne(e => e.Topic)
                .WithMany()
@@ -71,6 +79,5 @@ public sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscri
         builder.HasOne(e => e.ClientApplication)
                .WithMany()
                .OnDelete(DeleteBehavior.Cascade);
-
     }
 }

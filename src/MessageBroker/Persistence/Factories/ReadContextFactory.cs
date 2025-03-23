@@ -3,29 +3,44 @@ using Microsoft.EntityFrameworkCore.Design;
 using Persistence.Contexts;
 
 namespace Persistence.Factories;
+
+/// <summary>
+/// Factory for creating instances of <see cref="ReadContext"/> at design time.
+/// </summary>
 public class ReadContextFactory : IDesignTimeDbContextFactory<ReadContext>
 {
-
-    public IConfiguration Configuration { get; }
-
-    public IServiceProvider Services { get; }
-
-    public ReadContextFactory(IConfiguration configuration, IServiceProvider services)
-    {
-        Configuration = configuration;
-        Services = services;
-    }
-
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ReadContextFactory"/> class.
+    /// </summary>
     public ReadContextFactory()
     {
-
     }
 
+    /// <summary>
+    /// Creates a new instance of <see cref="ReadContext"/> based on the provided arguments.
+    /// </summary>
+    /// <param name="args">Arguments passed by the design-time tools; not used in this implementation.</param>
+    /// <returns>A new instance of <see cref="ReadContext"/> configured with the application's connection string.</returns>
     public ReadContext CreateDbContext(string[] args)
     {
+        // Build the configuration
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true)
+            .AddEnvironmentVariables()
+            .Build();
 
-        var optionsBuilder = Services.GetRequiredService<DbContextOptionsBuilder>();
+        // Create options builder for ReadContext
+        var optionsBuilder = new DbContextOptionsBuilder<ReadContext>();
 
-        return new ReadContext(optionsBuilder.Options, Configuration);
+        // Configure the context to use SQL Server with retry on failure
+        optionsBuilder.UseSqlServer(configuration.GetConnectionString("ReadConnection"), opt =>
+        {
+            opt.EnableRetryOnFailure();
+        });
+
+        // Return a new instance of ReadContext with the configured options
+        return new ReadContext(optionsBuilder.Options);
     }
 }

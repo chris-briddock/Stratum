@@ -30,7 +30,7 @@ where TKey : IEquatable<TKey>
     /// <summary>
     /// Gets or sets the event payload.
     /// </summary>
-    public virtual string? Payload { get; set; } = default!;
+    public virtual string Payload { get; set; } = default!;
     /// <summary>
     /// A random value that should change whenever the entity is persisted.
     /// </summary>

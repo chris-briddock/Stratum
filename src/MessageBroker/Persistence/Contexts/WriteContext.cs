@@ -2,16 +2,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Persistence.Contexts;
 
-public sealed class WriteContext : BaseContext
+/// <summary>
+/// Represents a database context for write operations, 
+/// inheriting from <see cref="BaseContext"/>.
+/// </summary>
+public class WriteContext : BaseContext
 {
-    public WriteContext(DbContextOptions options,
-                        IConfiguration configuration) : base(options, configuration) 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="WriteContext"/>
+    /// </summary>
+    /// <param name="options">The options to configure the database context.</param>
+    public WriteContext(DbContextOptions<WriteContext> options) : base(options)
     {
     }
 
-    public WriteContext()
+    /// <summary>
+    /// Initializes a new instance of the <see cref="WriteContext"/>
+    /// </summary>
+    public WriteContext() : base()
     {
-        
     }
-    
 }

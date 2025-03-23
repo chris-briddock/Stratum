@@ -2,43 +2,51 @@ using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-public class TopicConfiguration : IEntityTypeConfiguration<Topic>
+/// <summary>
+/// Configures the database schema for the <see cref="Topic"/> entity.
+/// Implements the <see cref="IEntityTypeConfiguration{TEntity}"/> interface.
+/// </summary>
+public sealed class TopicConfiguration : IEntityTypeConfiguration<Topic>
 {
-    public void Configure(EntityTypeBuilder<Topic> builder)
-    {
-        builder.ToTable("SYSTEM_TOPICS", opt => opt.IsTemporal());
+       /// <summary>
+       /// Configures the entity of type <see cref="Topic"/>.
+       /// </summary>
+       /// <param name="builder">The builder used to configure the entity.</param>
+       public void Configure(EntityTypeBuilder<Topic> builder)
+       {
+              builder.ToTable("SYSTEM_TOPICS", opt => opt.IsTemporal());
 
-        builder.HasKey(t => t.Id);
+              builder.HasKey(t => t.Id);
 
-        builder.Property(t => t.Id)
-               .HasColumnName("id")
-               .HasMaxLength(36)
-               .IsRequired();
+              builder.Property(t => t.Id)
+                     .HasColumnName("id")
+                     .HasMaxLength(36)
+                     .IsRequired();
 
-        builder.Property(t => t.Name)
-               .HasColumnName("name")
-               .HasMaxLength(255)
-               .IsRequired();
+              builder.Property(t => t.Name)
+                     .HasColumnName("name")
+                     .HasMaxLength(255)
+                     .IsRequired();
 
-        builder.Property(t => t.Description)
-               .HasColumnName("description")
-               .HasMaxLength(1000)
-               .IsRequired();
+              builder.Property(t => t.Description)
+                     .HasColumnName("description")
+                     .HasMaxLength(1000)
+                     .IsRequired();
 
-        builder.Property(t => t.Status)
-               .HasColumnName("status")
-               .HasMaxLength(100) 
-               .IsRequired();
+              builder.Property(t => t.Status)
+                     .HasColumnName("status")
+                     .HasMaxLength(100)
+                     .IsRequired();
 
-        builder.Property(t => t.ConcurrencyStamp)
-               .HasColumnName("concurrency_stamp")
-               .IsRequired()
-               .IsConcurrencyToken();
+              builder.Property(t => t.ConcurrencyStamp)
+                     .HasColumnName("concurrency_stamp")
+                     .IsRequired()
+                     .IsConcurrencyToken();
 
-        builder.ComplexProperty(u => u.EntityCreationStatus)
-                     .Property(x => x.CreatedBy)
-                     .HasColumnName("created_by")
-                     .HasMaxLength(36);
+              builder.ComplexProperty(u => u.EntityCreationStatus)
+                           .Property(x => x.CreatedBy)
+                           .HasColumnName("created_by")
+                           .HasMaxLength(36);
 
               builder.ComplexProperty(u => u.EntityCreationStatus)
                      .Property(x => x.CreatedOnUtc)
@@ -50,7 +58,7 @@ public class TopicConfiguration : IEntityTypeConfiguration<Topic>
                      .Property(x => x.ModifiedBy)
                      .HasColumnName("modified_by")
                      .HasMaxLength(36);
-              
+
               builder.ComplexProperty(u => u.EntityModificationStatus)
                      .Property(x => x.ModifiedOnUtc)
                      .HasDefaultValueSql("GETUTCDATE()")
@@ -71,15 +79,14 @@ public class TopicConfiguration : IEntityTypeConfiguration<Topic>
                      .HasColumnName("is_deleted")
                      .IsRequired();
 
-        // Configure relationships
-        builder.HasMany(t => t.Subscriptions)
-               .WithOne(s => s.Topic)
-               .HasForeignKey(s => s.TopicId)
-               .OnDelete(DeleteBehavior.Cascade); // Adjust delete behavior as needed
+              builder.HasMany(t => t.Subscriptions)
+                     .WithOne(s => s.Topic)
+                     .HasForeignKey(s => s.TopicId)
+                     .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany(t => t.Events) // Assuming a relationship exists with Event
-               .WithOne(e => e.Topic)
-               .HasForeignKey(e => e.TopicId)
-               .OnDelete(DeleteBehavior.Cascade);
-    }
+              builder.HasMany(t => t.Events)
+                     .WithOne(e => e.Topic)
+                     .HasForeignKey(e => e.TopicId)
+                     .OnDelete(DeleteBehavior.Cascade);
+       }
 }

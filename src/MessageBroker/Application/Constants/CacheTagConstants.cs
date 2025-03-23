@@ -14,4 +14,9 @@ public static class CacheTagConstants
     /// The cache tag for activities.
     /// </summary>
     public const string Activities = "activities";
+
+    public const string DeletedClients = "deleted_clients";
+
+    public const string ClientByName = "client_by_name";
+    public const string Clients = "clients";
 }

@@ -1,9 +1,9 @@
 using Application.Contracts;
 using Application.Stores;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Persistence.Contexts;
+using Persistence.Factories;
 
 namespace Application.Extensions;
 
@@ -11,9 +11,12 @@ public static partial class ServiceCollectionExtensions
 {
     public static IServiceCollection AddPersistence(this IServiceCollection services)
     { 
-        services.AddDbContext<BaseContext>();
-        services.AddDbContextFactory<WriteContext>();
-        services.AddDbContextFactory<ReadContext>(opt => opt.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
+        services.AddDbContext<BaseContext>(ServiceLifetime.Singleton);
+        services.AddDbContext<WriteContext>(ServiceLifetime.Scoped);
+        services.AddDbContext<ReadContext>(ServiceLifetime.Scoped);
+
+        services.AddSingleton<IDesignTimeDbContextFactory<ReadContext>, ReadContextFactory>();
+        services.AddSingleton<IDesignTimeDbContextFactory<WriteContext>, WriteContextFactory>();
 
         services.TryAddScoped<ISessionReadStore, SessionReadStore>();
         services.TryAddScoped<ISessionWriteStore, SessionWriteStore>();

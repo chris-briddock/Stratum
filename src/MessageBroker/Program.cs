@@ -11,21 +11,31 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.FeatureManagement;
+using Scalar.AspNetCore;
 
 namespace MessageBroker;
 
+/// <summary>
+/// The entry point for the Web Application.
+/// </summary>
 internal class Program
 {
+    /// <summary>
+    /// The entry method for the web application.
+    /// </summary>
     private static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        builder.WebHost.AddKestrelConfiguration(7172);
         builder.ConfigureOpenTelemetry(ServiceNameDefaults.ServiceName);
         builder.Services.Configure<HostOptions>(options =>
         {
             options.ServicesStartConcurrently = true;
             options.ServicesStopConcurrently = true;
         });
+        
         builder.Services.AddOpenApi();
+        builder.Services.AddPersistence();
         builder.Services.AddDataProtection();
         builder.Services.AddFeatureManagement();
         builder.Services.AddBearerAuthentication(builder.Configuration);
@@ -40,18 +50,18 @@ internal class Program
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         builder.Services.AddVersioning(1,0);
         builder.Services.AddDistributedMemoryCache();
-        builder.Services.AddPersistence();
         builder.Services.AddMessageBrokerChannels();
+        builder.Services.AddHealthChecks();
         builder.Services.TryAddScoped<IPublisher, Publisher>();
         builder.Services.TryAddScoped<ISubscriber, Subscriber>();
         builder.Services.AddResponseCompression();
-        builder.Services.AddSqlDatabaseHealthChecks(builder.Configuration.GetConnectionStringOrThrow("Default"));
+        builder.Services.AddSqlDatabaseHealthChecks(builder.Configuration.GetConnectionStringOrThrow("WriteConnection"));
         builder.Services.AddRedisHealthCheck(builder.Configuration);
         var app = builder.Build();
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
-            app.UseScalar();
+            app.MapScalarApiReference();
         }
 
         app.MapGet("/", () => "Hello, World!");
@@ -59,9 +69,8 @@ internal class Program
         app.UseHsts();
         app.MapControllers();
         app.UseCustomHealthCheckMapping();
-        
-
         app.UseHttpsRedirection();
+        await app.UseSeedDataAsync();
         await app.RunAsync();
     }
 }
