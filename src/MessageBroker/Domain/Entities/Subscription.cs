@@ -24,6 +24,7 @@ public sealed class Subscription : Subscription<string>
     /// </summary>
     public Topic Topic { get; set; } = default!;
 
+    public string ClientApplicationId { get; set;} = default!;
     /// <summary>
     /// Navigation property for the associated client application.
     /// </summary>

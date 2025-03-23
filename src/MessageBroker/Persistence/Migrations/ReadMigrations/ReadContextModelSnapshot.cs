@@ -65,7 +65,7 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
 
                     b.Property<string>("SessionId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(36)");
 
                     b.ComplexProperty<Dictionary<string, object>>("EntityCreationStatus", "Domain.Entities.ClientApplication.EntityCreationStatus#EntityCreationStatus<string>", b1 =>
                         {
@@ -114,6 +114,7 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
                             b1.Property<DateTime?>("ModifiedOnUtc")
                                 .ValueGeneratedOnAddOrUpdate()
                                 .HasColumnType("datetime2")
+                                .HasColumnName("modified_on_utc")
                                 .HasDefaultValueSql("GETUTCDATE()");
                         });
 
@@ -123,6 +124,9 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
                         .IsUnique();
 
                     b.HasIndex("ConcurrencyStamp")
+                        .IsUnique();
+
+                    b.HasIndex("SessionId")
                         .IsUnique();
 
                     b.ToTable("SYSTEM_CLIENT_APPLICATIONS", (string)null);
@@ -170,7 +174,9 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
 
                     b.Property<string>("TopicId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(36)");
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)")
+                        .HasColumnName("topic_id");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -224,7 +230,7 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
 
                     b.Property<string>("ClientApplicationId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(36)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -317,9 +323,6 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientApplicationId")
-                        .IsUnique();
-
                     b.ToTable("SYSTEM_SESSIONS", (string)null);
 
                     b.ToTable(tb => tb.IsTemporal(ttb =>
@@ -343,9 +346,6 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
 
                     b.Property<string>("ClientApplicationId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(36)");
-
-                    b.Property<string>("ClientApplicationId1")
                         .HasColumnType("nvarchar(36)");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -374,9 +374,6 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("type");
-
-                    b.Property<string>("topic_id")
-                        .HasColumnType("nvarchar(max)");
 
                     b.ComplexProperty<Dictionary<string, object>>("EntityCreationStatus", "Domain.Entities.Subscription.EntityCreationStatus#EntityCreationStatus<string>", b1 =>
                         {
@@ -431,8 +428,6 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
                     b.HasKey("Id");
 
                     b.HasIndex("ClientApplicationId");
-
-                    b.HasIndex("ClientApplicationId1");
 
                     b.HasIndex("ConcurrencyStamp")
                         .IsUnique();
@@ -560,6 +555,17 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
                             }));
                 });
 
+            modelBuilder.Entity("Domain.Entities.ClientApplication", b =>
+                {
+                    b.HasOne("Domain.Entities.Session", "Session")
+                        .WithOne("ClientApplication")
+                        .HasForeignKey("Domain.Entities.ClientApplication", "SessionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Session");
+                });
+
             modelBuilder.Entity("Domain.Entities.Event", b =>
                 {
                     b.HasOne("Domain.Entities.Topic", "Topic")
@@ -571,28 +577,13 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
                     b.Navigation("Topic");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Session", b =>
-                {
-                    b.HasOne("Domain.Entities.ClientApplication", "ClientApplication")
-                        .WithOne("Session")
-                        .HasForeignKey("Domain.Entities.Session", "ClientApplicationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ClientApplication");
-                });
-
             modelBuilder.Entity("Domain.Entities.Subscription", b =>
                 {
                     b.HasOne("Domain.Entities.ClientApplication", "ClientApplication")
-                        .WithMany()
+                        .WithMany("Subscriptions")
                         .HasForeignKey("ClientApplicationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Domain.Entities.ClientApplication", null)
-                        .WithMany("Subscriptions")
-                        .HasForeignKey("ClientApplicationId1");
 
                     b.HasOne("Domain.Entities.Topic", "Topic")
                         .WithMany("Subscriptions")
@@ -607,10 +598,13 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
 
             modelBuilder.Entity("Domain.Entities.ClientApplication", b =>
                 {
-                    b.Navigation("Session")
-                        .IsRequired();
-
                     b.Navigation("Subscriptions");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Session", b =>
+                {
+                    b.Navigation("ClientApplication")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Domain.Entities.Topic", b =>
