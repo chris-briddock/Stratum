@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore.Design;
 using Persistence.Contexts;
-using Persistence.Factories;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace Application.Stores;

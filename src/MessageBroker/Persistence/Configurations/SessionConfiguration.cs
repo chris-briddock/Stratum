@@ -77,12 +77,6 @@ public sealed class SessionConfiguration : IEntityTypeConfiguration<Session>
        builder.Property(e => e.ConcurrencyStamp)
               .HasColumnName("concurrency_stamp")
               .HasMaxLength(36)
-              .IsConcurrencyToken();
-       
-       builder.HasOne(e => e.ClientApplication)
-               .WithOne(ca => ca.Session)
-               .OnDelete(DeleteBehavior.Cascade);
-
-       
+              .IsConcurrencyToken();    
     }
 }

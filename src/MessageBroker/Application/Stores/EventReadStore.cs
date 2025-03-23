@@ -1,3 +1,4 @@
+using Application.Constants;
 using Application.DTOs;
 using Application.Extensions;
 using Domain.Entities;
@@ -11,7 +12,14 @@ namespace Application.Stores;
 /// </summary>
 public sealed class EventReadStore : StoreBase
 {
+    /// <summary>
+    /// Gets the <see cref="ReadContext"/> used for database operations.
+    /// </summary>
     private ReadContext ReadContext => ReadContextFactory.CreateDbContext(null!);
+
+    /// <summary>
+    /// Represents the collection of events in the database.
+    /// </summary>
     private DbSet<Event> DbSet => ReadContext.Set<Event>();
 
     /// <summary>
@@ -22,21 +30,42 @@ public sealed class EventReadStore : StoreBase
     {
     }
 
-    /// <inheritdoc />
-public async Task<PaginatedList<EventDto<string>>> GetEventsAsync(int page = 1,
-                                                                  int pageSize = 10,
-                                                                  CancellationToken ctx = default)
-{
-    // Validate parameters
-    if (page <= 0) throw new ArgumentOutOfRangeException(nameof(page), "Page number must be greater than zero.");
-    if (pageSize <= 0) throw new ArgumentOutOfRangeException(nameof(pageSize), "Page size must be greater than zero.");
+    /// <summary>
+    /// Retrieves events asynchronously with pagination, utilizing FusionCache for caching.
+    /// </summary>
+    /// <param name="page">The page number (1-based).</param>
+    /// <param name="pageSize">The number of events per page.</param>
+    /// <param name="ctx">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation, containing a paginated list of events.</returns>
+    public async Task<PaginatedList<EventDto<string>>> GetEventsAsync(int page = 1, 
+                                                                      int pageSize = 10, 
+                                                                      CancellationToken ctx = default)
+    {
+        if (page <= 0) throw new ArgumentOutOfRangeException(nameof(page), "Page number must be greater than zero.");
+        if (pageSize <= 0) throw new ArgumentOutOfRangeException(nameof(pageSize), "Page size must be greater than zero.");
 
-    return await DbSet.Select(x => new EventDto<string>()
-        {
-            Type = x.Type,
-            Payload = x.Payload,
-            EntityCreationStatus = x.EntityCreationStatus,
-            
-        }).ToPaginatedListAsync(page, pageSize, ctx);
-}
+        string cacheKey = "events-page-" + page + "-size-" + pageSize;
+
+        return await FusionCache.GetOrSetAsync<PaginatedList<EventDto<string>>>(
+            cacheKey,
+            async (ctx, cancellationToken) =>
+            {
+                // Setting tags for cache invalidation if necessary
+                ctx.Tags = [CacheTagConstants.Events ];
+
+                // Fetching events from the database and projecting to EventDto
+                var events = await DbSet
+                    .Select(x => new EventDto<string>()
+                    {
+                        Type = x.Type,
+                        Payload = x.Payload,
+                        EntityCreationStatus = x.EntityCreationStatus
+                    })
+                    .ToPaginatedListAsync(page, pageSize, cancellationToken);
+
+                return events;
+            },
+            token: ctx
+        );
+    }
 }

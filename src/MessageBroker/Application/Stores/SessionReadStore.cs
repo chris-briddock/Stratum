@@ -13,7 +13,11 @@ namespace Application.Stores;
 public sealed class SessionReadStore : StoreBase, ISessionReadStore
 {
 
+    /// <summary>
+    /// The database context used for performing read operations.
+    /// </summary>
     private ReadContext ReadContext => ReadContextFactory.CreateDbContext(null!);
+    
     private DbSet<Session> DbSet => ReadContext.Set<Session>();
     /// <summary>
     /// Initializes a new instance of the <see cref="SessionWriteStore"/> class.

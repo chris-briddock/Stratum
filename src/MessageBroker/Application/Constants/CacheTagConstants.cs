@@ -19,4 +19,6 @@ public static class CacheTagConstants
 
     public const string ClientByName = "client_by_name";
     public const string Clients = "clients";
+
+    public const string Events = "events";
 }

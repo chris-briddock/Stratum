@@ -61,7 +61,11 @@ public sealed class EventConfiguration : IEntityTypeConfiguration<Event>
         builder.HasIndex(ca => ca.ConcurrencyStamp)
                .IsUnique();
 
-        // Configure the relationship between Event and Topic.
+       builder.Property(x => x.TopicId)
+              .HasMaxLength(36)
+              .HasColumnName("topic_id")
+              .IsRequired();
+
         builder.HasOne(e => e.Topic)
                .WithMany(t => t.Events)
                .HasForeignKey(e => e.TopicId)

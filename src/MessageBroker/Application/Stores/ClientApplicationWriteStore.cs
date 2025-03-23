@@ -1,4 +1,7 @@
+using Application.Constants;
 using Application.Contracts;
+using Application.Factories;
+using Application.Results;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Contexts;
@@ -26,46 +29,84 @@ public sealed class ClientApplicationWriteStore : StoreBase, IClientApplicationW
     /// <param name="services">An instance of the service provider.</param>
     public ClientApplicationWriteStore(IServiceProvider services) : base(services)
     {
+        FusionCache.RemoveByTag(CacheTagConstants.ClientByName);
+        FusionCache.RemoveByTag(CacheTagConstants.Clients);
+        FusionCache.RemoveByTag(CacheTagConstants.DeletedClients);
     }
 
-    /// <summary>
-    /// Adds a new <see cref="ClientApplication"/> entity to the database.
-    /// </summary>
-    /// <param name="clientApplication">The <see cref="ClientApplication"/> entity to add.</param>
-    /// <param name="ctx">The <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task AddAsync(ClientApplication clientApplication, CancellationToken ctx = default)
+    /// <inheritdoc />
+    public async Task<ClientApplicationResult> AddAsync(ClientApplication clientApplication, CancellationToken ctx = default)
     {
-        
-        await DbSet.AddAsync(clientApplication, ctx);
-        await WriteContext.SaveChangesAsync(ctx);
-    }
-
-    /// <summary>
-    /// Updates an existing <see cref="ClientApplication"/> entity in the database.
-    /// </summary>
-    /// <param name="clientApplication">The <see cref="ClientApplication"/> entity to update.</param>
-    /// <param name="ctx">The <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task UpdateAsync(ClientApplication clientApplication, CancellationToken ctx = default)
-    {
-        DbSet.Update(clientApplication);
-        await WriteContext.SaveChangesAsync(ctx);
-    }
-
-    /// <summary>
-    /// Deletes a <see cref="ClientApplication"/> entity from the database by its name.
-    /// </summary>
-    /// <param name="clientName">The name of the <see cref="ClientApplication"/> to delete.</param>
-    /// <param name="ctx">The <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task DeleteAsync(string clientName, CancellationToken ctx = default)
-    {
-        var client = await DbSet.SingleOrDefaultAsync(x => x.Name == clientName, ctx);
-        if (client != null)
+        try
         {
-            DbSet.Remove(client);
+            await DbSet.AddAsync(clientApplication, ctx);
             await WriteContext.SaveChangesAsync(ctx);
+
+            return ClientApplicationResult.Success();   
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            return ClientApplicationResult.Failed([ErrorFactory.DbUpdateConcurrencyException(ex.Message)]);  
+        }
+        catch (DbUpdateException ex)
+        {
+            return ClientApplicationResult.Failed([ErrorFactory.DbUpdateException(ex.Message)]);
+        }
+        catch (OperationCanceledException ex)
+        {
+            return ClientApplicationResult.Failed(ErrorFactory.OperationCancelled(ex.Message));
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<ClientApplicationResult> UpdateAsync(ClientApplication clientApplication, CancellationToken ctx = default)
+    {
+        try
+        {
+            DbSet.Update(clientApplication);
+            await WriteContext.SaveChangesAsync(ctx);  
+            return ClientApplicationResult.Success();  
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            return ClientApplicationResult.Failed([ErrorFactory.DbUpdateConcurrencyException(ex.Message)]);  
+        }
+        catch (DbUpdateException ex)
+        {
+            return ClientApplicationResult.Failed([ErrorFactory.DbUpdateException(ex.Message)]);
+        }
+        catch (OperationCanceledException ex)
+        {
+            return ClientApplicationResult.Failed(ErrorFactory.OperationCancelled(ex.Message));
+        }
+        
+    }
+
+    /// <inheritdoc />
+    public async Task<ClientApplicationResult> DeleteAsync(string clientName, CancellationToken ctx = default)
+    {
+        try
+        {
+            var client = await DbSet.SingleOrDefaultAsync(x => x.Name == clientName, ctx);
+            if (client is not null)
+            {
+                DbSet.Remove(client);
+                await WriteContext.SaveChangesAsync(ctx);
+            }
+            
+            return ClientApplicationResult.Success();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            return ClientApplicationResult.Failed([ErrorFactory.DbUpdateConcurrencyException(ex.Message)]);  
+        }
+        catch (DbUpdateException ex)
+        {
+            return ClientApplicationResult.Failed([ErrorFactory.DbUpdateException(ex.Message)]);
+        }
+        catch (OperationCanceledException ex)
+        {
+            return ClientApplicationResult.Failed(ErrorFactory.OperationCancelled(ex.Message));
         }
     }
 }

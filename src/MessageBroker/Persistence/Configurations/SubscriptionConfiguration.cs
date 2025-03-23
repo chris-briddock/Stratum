@@ -70,14 +70,5 @@ public sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscri
 
         builder.HasIndex(ca => ca.ConcurrencyStamp)
                .IsUnique();
-
-        builder.HasOne(e => e.Topic)
-               .WithMany()
-               .HasForeignKey("topic_id")
-               .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasOne(e => e.ClientApplication)
-               .WithMany()
-               .OnDelete(DeleteBehavior.Cascade);
     }
 }

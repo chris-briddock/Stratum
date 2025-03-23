@@ -78,15 +78,5 @@ public sealed class TopicConfiguration : IEntityTypeConfiguration<Topic>
                      .Property(x => x.IsDeleted)
                      .HasColumnName("is_deleted")
                      .IsRequired();
-
-              builder.HasMany(t => t.Subscriptions)
-                     .WithOne(s => s.Topic)
-                     .HasForeignKey(s => s.TopicId)
-                     .OnDelete(DeleteBehavior.Cascade);
-
-              builder.HasMany(t => t.Events)
-                     .WithOne(e => e.Topic)
-                     .HasForeignKey(e => e.TopicId)
-                     .OnDelete(DeleteBehavior.Cascade);
        }
 }

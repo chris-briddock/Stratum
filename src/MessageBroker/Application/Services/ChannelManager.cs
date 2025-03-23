@@ -17,7 +17,7 @@ public sealed class ChannelManager : IChannelManager, IDisposable
     {
         return Channels.Keys;
     }
-
+    /// <inheritdoc/>
     public int GetMessageCount(string topic)
     {
         if (Channels.TryGetValue(topic, out var channelObj) && channelObj is Channel<object> channel)
@@ -27,7 +27,7 @@ public sealed class ChannelManager : IChannelManager, IDisposable
 
         throw new KeyNotFoundException($"The topic '{topic}' does not exist.");
     }
-
+    /// <inheritdoc/>
     public Channel<T> GetOrCreateTopicChannel<T>(string name, int capacity)
     {
         return (Channel<T>)Channels.GetOrAdd(name, _ =>
@@ -38,7 +38,7 @@ public sealed class ChannelManager : IChannelManager, IDisposable
                 FullMode = BoundedChannelFullMode.DropOldest
             }));
     }
-
+    /// <inheritdoc/>
     public Channel<Queue<T>> GetOrCreateQueueChannel<T>(string name, int capacity)
     {
         return (Channel<Queue<T>>)Channels.GetOrAdd(name, _ =>
@@ -49,7 +49,7 @@ public sealed class ChannelManager : IChannelManager, IDisposable
                 FullMode = BoundedChannelFullMode.Wait
             }));
     }
-
+    /// <inheritdoc/>
     public bool RemoveChannel(string name)
     {
         if (Channels.TryRemove(name, out var channelObj) && channelObj is Channel<object> channel)
@@ -59,7 +59,7 @@ public sealed class ChannelManager : IChannelManager, IDisposable
         }
         return false;
     }
-
+    /// <inheritdoc/>
     public void Dispose()
     {
         foreach (var channelObj in Channels.Values)

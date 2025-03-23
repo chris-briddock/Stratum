@@ -1,4 +1,3 @@
-
 using Application.Constants;
 using Application.Contracts;
 using Application.Extensions;
@@ -12,6 +11,9 @@ namespace Application.Stores;
 /// </summary>
 public sealed class ClientApplicationReadStore : StoreBase, IClientApplicationReadStore
 {
+    /// <summary>
+    /// Represents the collection of <see cref="ClientApplication"/>in the database.
+    /// </summary>
     private DbSet<ClientApplication> DbSet => ReadContextFactory.CreateDbContext(null!).Set<ClientApplication>();
     /// <summary>
     /// Initializes a new instance of <see cref="ClientApplicationReadStore"/>
@@ -34,9 +36,9 @@ public sealed class ClientApplicationReadStore : StoreBase, IClientApplicationRe
 
         var clients = await FusionCache.GetOrSetAsync<PaginatedList<ClientApplicationDto<string>>>(
             cacheKey,
-            async (cacheCtx, cacheToken) =>
+            async (ctx, cacheToken) =>
             {
-                cacheCtx.Tags = [CacheTagConstants.Clients];
+                ctx.Tags = [CacheTagConstants.Clients];
 
                 // Fetch data from DbSet and project to ClientApplicationDto
                 var clientList = await DbSet.Select(x => new ClientApplicationDto<string>()

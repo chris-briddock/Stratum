@@ -1,3 +1,4 @@
+using Application.Results;
 using Domain.Entities;
 
 namespace Application.Contracts;
@@ -13,7 +14,8 @@ public interface IClientApplicationWriteStore
     /// <param name="clientApplication">The client application to add.</param>
     /// <param name="ctx">A cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    Task AddAsync(ClientApplication clientApplication, CancellationToken ctx = default);
+    Task<ClientApplicationResult> AddAsync(ClientApplication clientApplication,
+                                           CancellationToken ctx = default);
 
     /// <summary>
     /// Deletes a client application from the store by its name.
@@ -21,7 +23,8 @@ public interface IClientApplicationWriteStore
     /// <param name="clientName">The name of the client application to delete.</param>
     /// <param name="ctx">A cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    Task DeleteAsync(string clientName, CancellationToken ctx = default);
+    Task<ClientApplicationResult> DeleteAsync(string clientName,
+                                              CancellationToken ctx = default);
 
     /// <summary>
     /// Updates an existing client application in the store.
@@ -29,5 +32,5 @@ public interface IClientApplicationWriteStore
     /// <param name="clientApplication">The client application with updated information.</param>
     /// <param name="ctx">A cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    Task UpdateAsync(ClientApplication clientApplication, CancellationToken ctx = default);
+    Task<ClientApplicationResult> UpdateAsync(ClientApplication clientApplication, CancellationToken ctx = default);
 }
