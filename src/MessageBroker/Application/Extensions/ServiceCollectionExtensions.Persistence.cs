@@ -21,7 +21,11 @@ public static partial class ServiceCollectionExtensions
         services.TryAddScoped<ISessionReadStore, SessionReadStore>();
         services.TryAddScoped<ISessionWriteStore, SessionWriteStore>();
         services.TryAddScoped<IClientApplicationReadStore, ClientApplicationReadStore>();
-        
+        services.TryAddScoped<IClientApplicationWriteStore, ClientApplicationWriteStore>();
+        services.TryAddScoped<IEventReadStore, EventReadStore>();
+        services.TryAddScoped<IEventWriteStore, EventWriteStore>();   
+        services.TryAddScoped<ISubscriptionReadStore, SubscriptionReadStore>();
+        services.TryAddScoped<ISubscriptionWriteStore, SubscriptionWriteStore>();     
 
         return services;
     }

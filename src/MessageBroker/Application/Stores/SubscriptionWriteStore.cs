@@ -1,15 +1,18 @@
 
+using Application.Contracts;
+using Application.Factories;
+using Application.Results;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Contexts;
 
 namespace Application.Stores;
 
-public sealed class SubscriptionWriteStore : StoreBase
+public sealed class SubscriptionWriteStore : StoreBase, ISubscriptionWriteStore
 {
-    private ReadContext ReadContext => ReadContextFactory.CreateDbContext(null!);
+    private WriteContext WriteContext => WriteContextFactory.CreateDbContext(null!);
 
-    private DbSet<Subscription> DbSet => ReadContext.Set<Subscription>();
+    private DbSet<Subscription> DbSet => WriteContext.Set<Subscription>();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SubscriptionWriteStore"/> class.
@@ -19,52 +22,88 @@ public sealed class SubscriptionWriteStore : StoreBase
     {
     }
 
-    /// <summary>
-    /// Creates a new subscription and saves it to the database.
-    /// </summary>
-    /// <param name="subscription">The subscription to create.</param>
-    /// <param name="cancellationToken">Token for canceling the operation.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when the subscription is null.</exception>
-    public async Task CreateSubscriptionAsync(Subscription subscription, CancellationToken cancellationToken = default)
+    /// <inheritdoc/>
+    public async Task<SubscriptionResult> CreateSubscriptionAsync(Subscription subscription, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(subscription);
 
-        await DbSet.AddAsync(subscription, cancellationToken);
-        await ReadContext.SaveChangesAsync(cancellationToken);
-    }
-
-    /// <summary>
-    /// Updates an existing subscription in the database.
-    /// </summary>
-    /// <param name="subscription">The subscription to update.</param>
-    /// <param name="cancellationToken">Token for canceling the operation.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when the subscription is null.</exception>
-    public async Task UpdateSubscriptionAsync(Subscription subscription, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(subscription);
-
-        DbSet.Update(subscription);
-        await ReadContext.SaveChangesAsync(cancellationToken);
-    }
-
-    /// <summary>
-    /// Deletes a subscription from the database by its ID.
-    /// </summary>
-    /// <param name="subscriptionId">The ID of the subscription to delete.</param>
-    /// <param name="cancellationToken">Token for canceling the operation.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when the subscription ID is null or empty.</exception>
-    public async Task DeleteSubscriptionAsync(string subscriptionId, CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(subscriptionId);
-
-        var subscription = await DbSet.FirstOrDefaultAsync(s => s.Id == subscriptionId, cancellationToken);
-        if (subscription != null)
+        try
         {
-            DbSet.Remove(subscription);
-            await ReadContext.SaveChangesAsync(cancellationToken);
+            await DbSet.AddAsync(subscription, cancellationToken);
+            await WriteContext.SaveChangesAsync(cancellationToken);
+
+            return SubscriptionResult.Success();
+
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            return SubscriptionResult.Failed([ErrorFactory.DbUpdateConcurrencyException(ex.Message)]);
+        }
+        catch (DbUpdateException ex)
+        {
+            return SubscriptionResult.Failed([ErrorFactory.DbUpdateException(ex.Message)]);
+        }
+        catch (OperationCanceledException ex)
+        {
+            return SubscriptionResult.Failed(ErrorFactory.OperationCancelled(ex.Message));
+        }
+
+    }
+
+    /// <inheritdoc/>
+    public async Task<SubscriptionResult> UpdateSubscriptionAsync(Subscription subscription,
+                                                                  CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(subscription);
+        try
+        {
+            DbSet.Update(subscription);
+            await WriteContext.SaveChangesAsync(cancellationToken);
+
+            return SubscriptionResult.Success();
+
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            return SubscriptionResult.Failed([ErrorFactory.DbUpdateConcurrencyException(ex.Message)]);
+        }
+        catch (DbUpdateException ex)
+        {
+            return SubscriptionResult.Failed([ErrorFactory.DbUpdateException(ex.Message)]);
+        }
+        catch (OperationCanceledException ex)
+        {
+            return SubscriptionResult.Failed(ErrorFactory.OperationCancelled(ex.Message));
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<SubscriptionResult> DeleteSubscriptionAsync(Subscription subscription,
+                                                                  CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(subscription);
+
+        try
+        {
+            var entity = await DbSet.FirstOrDefaultAsync(s => s.Id == subscription.Id, cancellationToken);
+            if (entity != null)
+            {
+                DbSet.Remove(entity);
+                await WriteContext.SaveChangesAsync(cancellationToken);
+            }
+            return SubscriptionResult.Success();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            return SubscriptionResult.Failed([ErrorFactory.DbUpdateConcurrencyException(ex.Message)]);
+        }
+        catch (DbUpdateException ex)
+        {
+            return SubscriptionResult.Failed([ErrorFactory.DbUpdateException(ex.Message)]);
+        }
+        catch (OperationCanceledException ex)
+        {
+            return SubscriptionResult.Failed(ErrorFactory.OperationCancelled(ex.Message));
         }
     }
 }

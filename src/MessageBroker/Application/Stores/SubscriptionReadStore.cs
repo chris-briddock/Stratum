@@ -1,4 +1,5 @@
 
+using Application.Contracts;
 using Application.Dtos;
 using Application.Extensions;
 using Domain.Entities;
@@ -7,7 +8,7 @@ using Persistence.Contexts;
 
 namespace Application.Stores;
 
-public sealed class SubscriptionReadStore : StoreBase
+public sealed class SubscriptionReadStore : StoreBase, ISubscriptionReadStore
 {
     private ReadContext ReadContext => ReadContextFactory.CreateDbContext(null!);
 

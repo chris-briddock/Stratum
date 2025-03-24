@@ -1,3 +1,3 @@
 namespace Domain.Events;
 
-public sealed record SubscribeEvent();
+public sealed record SubscribeEvent(string Topic);

@@ -1,4 +1,5 @@
 using Application.Constants;
+using Application.Contracts;
 using Application.DTOs;
 using Application.Extensions;
 using Domain.Entities;
@@ -10,7 +11,7 @@ namespace Application.Stores;
 /// <summary>
 /// Provides methods for performing read operations on <see cref="Event"/> entities.
 /// </summary>
-public sealed class EventReadStore : StoreBase
+public sealed class EventReadStore : StoreBase, IEventReadStore
 {
     /// <summary>
     /// Gets the <see cref="ReadContext"/> used for database operations.
@@ -37,8 +38,8 @@ public sealed class EventReadStore : StoreBase
     /// <param name="pageSize">The number of events per page.</param>
     /// <param name="ctx">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation, containing a paginated list of events.</returns>
-    public async Task<PaginatedList<EventDto<string>>> GetEventsAsync(int page = 1, 
-                                                                      int pageSize = 10, 
+    public async Task<PaginatedList<EventDto<string>>> GetEventsAsync(int page = 1,
+                                                                      int pageSize = 10,
                                                                       CancellationToken ctx = default)
     {
         if (page <= 0) throw new ArgumentOutOfRangeException(nameof(page), "Page number must be greater than zero.");
@@ -51,7 +52,7 @@ public sealed class EventReadStore : StoreBase
             async (ctx, cancellationToken) =>
             {
                 // Setting tags for cache invalidation if necessary
-                ctx.Tags = [CacheTagConstants.Events ];
+                ctx.Tags = [CacheTagConstants.Events];
 
                 // Fetching events from the database and projecting to EventDto
                 var events = await DbSet

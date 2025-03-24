@@ -64,8 +64,6 @@ internal class Program
             app.MapScalarApiReference();
         }
 
-        app.MapGet("/", () => "Hello, World!");
-
         app.UseHsts();
         app.MapControllers();
         app.UseCustomHealthCheckMapping();

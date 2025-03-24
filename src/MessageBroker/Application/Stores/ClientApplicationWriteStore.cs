@@ -1,6 +1,7 @@
 using Application.Constants;
 using Application.Contracts;
 using Application.Factories;
+using Application.Providers;
 using Application.Results;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -90,7 +91,8 @@ public sealed class ClientApplicationWriteStore : StoreBase, IClientApplicationW
             var client = await DbSet.SingleOrDefaultAsync(x => x.Name == clientName, ctx);
             if (client is not null)
             {
-                DbSet.Remove(client);
+                client.EntityDeletionStatus = new EntityStatusProvider<string>().Delete("SYSTEM");
+                DbSet.Update(client);
                 await WriteContext.SaveChangesAsync(ctx);
             }
             
