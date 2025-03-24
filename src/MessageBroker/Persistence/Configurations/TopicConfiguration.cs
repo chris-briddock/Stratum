@@ -61,6 +61,7 @@ public sealed class TopicConfiguration : IEntityTypeConfiguration<Topic>
 
               builder.ComplexProperty(u => u.EntityModificationStatus)
                      .Property(x => x.ModifiedOnUtc)
+                     .HasColumnName("modified_on_utc")
                      .HasDefaultValueSql("GETUTCDATE()")
                      .ValueGeneratedOnAddOrUpdate();
 

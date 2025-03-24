@@ -15,5 +15,7 @@ public interface ISubscriptionReadStore
     /// <param name="pageSize">The page size.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A paginated list of subscriptions.</returns>
-    Task<PaginatedList<SubscriptionDto>> GetSubscriptionsAsync(int page = 1, int pageSize = 10, CancellationToken cancellationToken = default);
+    Task<PaginatedList<SubscriptionDto>> GetSubscriptionsAsync(int page = 1,
+                                                               int pageSize = 10,
+                                                               CancellationToken cancellationToken = default);
 }

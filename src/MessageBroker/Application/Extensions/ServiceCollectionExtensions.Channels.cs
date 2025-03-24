@@ -7,7 +7,7 @@ public static partial class ServiceCollectionExtensions
 {
     public static IServiceCollection AddMessageBrokerChannels(this IServiceCollection services)
     {
-        services.TryAddScoped<IChannelManager, ChannelManager>();
+        services.TryAddSingleton<IChannelManager, ChannelManager>();
         return services;
     }
 }

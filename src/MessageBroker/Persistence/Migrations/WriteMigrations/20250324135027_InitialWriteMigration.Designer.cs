@@ -10,11 +10,11 @@ using Persistence.Contexts;
 
 #nullable disable
 
-namespace MessageBroker.Persistence.Migrations.ReadMigrations
+namespace MessageBroker.Persistence.Migrations.WriteMigrations
 {
-    [DbContext(typeof(ReadContext))]
-    [Migration("20250323173259_InitialReadMigration")]
-    partial class InitialReadMigration
+    [DbContext(typeof(WriteContext))]
+    [Migration("20250324135027_InitialWriteMigration")]
+    partial class InitialWriteMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -48,7 +48,9 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)")
+                        .HasColumnName("description");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -68,7 +70,9 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
 
                     b.Property<string>("SessionId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(36)");
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)")
+                        .HasColumnName("session_id");
 
                     b.ComplexProperty<Dictionary<string, object>>("EntityCreationStatus", "Domain.Entities.ClientApplication.EntityCreationStatus#EntityCreationStatus<string>", b1 =>
                         {
@@ -233,7 +237,9 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
 
                     b.Property<string>("ClientApplicationId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)")
+                        .HasColumnName("client_application_id");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -349,7 +355,9 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
 
                     b.Property<string>("ClientApplicationId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(36)");
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)")
+                        .HasColumnName("client_application_id");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -370,7 +378,9 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
 
                     b.Property<string>("TopicId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(36)");
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)")
+                        .HasColumnName("topic_id");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -425,6 +435,7 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
                             b1.Property<DateTime?>("ModifiedOnUtc")
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType("datetime2")
+                                .HasColumnName("modified_on_utc")
                                 .HasDefaultValueSql("GETUTCDATE()");
                         });
 
@@ -539,6 +550,7 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
                             b1.Property<DateTime?>("ModifiedOnUtc")
                                 .ValueGeneratedOnAddOrUpdate()
                                 .HasColumnType("datetime2")
+                                .HasColumnName("modified_on_utc")
                                 .HasDefaultValueSql("GETUTCDATE()");
                         });
 

@@ -21,6 +21,16 @@ public sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscri
               builder.Property(e => e.Id)
                      .HasColumnName("id")
                      .HasMaxLength(36);
+              
+              builder.Property(e => e.ClientApplicationId)
+                     .HasColumnName("client_application_id")
+                     .HasMaxLength(36)
+                     .IsRequired();
+              
+              builder.Property(e => e.TopicId)
+                     .HasColumnName("topic_id")
+                     .HasMaxLength(36)
+                     .IsRequired();
 
               builder.Property(e => e.Type)
                      .HasMaxLength(100)
@@ -50,6 +60,7 @@ public sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscri
 
               builder.ComplexProperty(u => u.EntityModificationStatus)
                      .Property(x => x.ModifiedOnUtc)
+                     .HasColumnName("modified_on_utc")
                      .HasDefaultValueSql("GETUTCDATE()")
                      .ValueGeneratedOnAdd();
 

@@ -16,7 +16,7 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
                 columns: table => new
                 {
                     id = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
-                    ClientApplicationId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    client_application_id = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
                     PeriodEnd = table.Column<DateTime>(type: "datetime2", nullable: false)
                         .Annotation("SqlServer:TemporalIsPeriodEndColumn", true),
                     PeriodStart = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -60,7 +60,7 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
                     deleted_on_utc = table.Column<DateTime>(type: "datetime2", maxLength: 36, nullable: true),
                     is_deleted = table.Column<bool>(type: "bit", nullable: false),
                     modified_by = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: true),
-                    EntityModificationStatus_ModifiedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true, defaultValueSql: "GETUTCDATE()"),
+                    modified_on_utc = table.Column<DateTime>(type: "datetime2", nullable: true, defaultValueSql: "GETUTCDATE()"),
                     name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     status = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
@@ -81,7 +81,7 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
                 columns: table => new
                 {
                     id = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
-                    SessionId = table.Column<string>(type: "nvarchar(36)", nullable: false),
+                    session_id = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
                     PeriodEnd = table.Column<DateTime>(type: "datetime2", nullable: false)
                         .Annotation("SqlServer:TemporalIsPeriodEndColumn", true),
                     PeriodStart = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -95,15 +95,15 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
                     modified_on_utc = table.Column<DateTime>(type: "datetime2", nullable: true, defaultValueSql: "GETUTCDATE()"),
                     name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     api_key = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    description = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
                     concurrency_stamp = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SYSTEM_CLIENT_APPLICATIONS", x => x.id);
                     table.ForeignKey(
-                        name: "FK_SYSTEM_CLIENT_APPLICATIONS_SYSTEM_SESSIONS_SessionId",
-                        column: x => x.SessionId,
+                        name: "FK_SYSTEM_CLIENT_APPLICATIONS_SYSTEM_SESSIONS_session_id",
+                        column: x => x.session_id,
                         principalTable: "SYSTEM_SESSIONS",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
@@ -151,8 +151,8 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
                 columns: table => new
                 {
                     id = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
-                    TopicId = table.Column<string>(type: "nvarchar(36)", nullable: false),
-                    ClientApplicationId = table.Column<string>(type: "nvarchar(36)", nullable: false),
+                    topic_id = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    client_application_id = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
                     PeriodEnd = table.Column<DateTime>(type: "datetime2", nullable: false)
                         .Annotation("SqlServer:TemporalIsPeriodEndColumn", true),
                     PeriodStart = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -163,7 +163,7 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
                     deleted_on_utc = table.Column<DateTime>(type: "datetime2", maxLength: 36, nullable: true),
                     is_deleted = table.Column<bool>(type: "bit", nullable: false),
                     modified_by = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: true),
-                    EntityModificationStatus_ModifiedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true, defaultValueSql: "GETUTCDATE()"),
+                    modified_on_utc = table.Column<DateTime>(type: "datetime2", nullable: true, defaultValueSql: "GETUTCDATE()"),
                     type = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     concurrency_stamp = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false)
                 },
@@ -171,14 +171,14 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
                 {
                     table.PrimaryKey("PK_SYSTEM_SUBSCRIPTIONS", x => x.id);
                     table.ForeignKey(
-                        name: "FK_SYSTEM_SUBSCRIPTIONS_SYSTEM_CLIENT_APPLICATIONS_ClientApplicationId",
-                        column: x => x.ClientApplicationId,
+                        name: "FK_SYSTEM_SUBSCRIPTIONS_SYSTEM_CLIENT_APPLICATIONS_client_application_id",
+                        column: x => x.client_application_id,
                         principalTable: "SYSTEM_CLIENT_APPLICATIONS",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SYSTEM_SUBSCRIPTIONS_SYSTEM_TOPICS_TopicId",
-                        column: x => x.TopicId,
+                        name: "FK_SYSTEM_SUBSCRIPTIONS_SYSTEM_TOPICS_topic_id",
+                        column: x => x.topic_id,
                         principalTable: "SYSTEM_TOPICS",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -202,9 +202,9 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_SYSTEM_CLIENT_APPLICATIONS_SessionId",
+                name: "IX_SYSTEM_CLIENT_APPLICATIONS_session_id",
                 table: "SYSTEM_CLIENT_APPLICATIONS",
-                column: "SessionId",
+                column: "session_id",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -219,9 +219,9 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
                 column: "topic_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SYSTEM_SUBSCRIPTIONS_ClientApplicationId",
+                name: "IX_SYSTEM_SUBSCRIPTIONS_client_application_id",
                 table: "SYSTEM_SUBSCRIPTIONS",
-                column: "ClientApplicationId");
+                column: "client_application_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SYSTEM_SUBSCRIPTIONS_concurrency_stamp",
@@ -230,9 +230,9 @@ namespace MessageBroker.Persistence.Migrations.ReadMigrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_SYSTEM_SUBSCRIPTIONS_TopicId",
+                name: "IX_SYSTEM_SUBSCRIPTIONS_topic_id",
                 table: "SYSTEM_SUBSCRIPTIONS",
-                column: "TopicId");
+                column: "topic_id");
         }
 
         /// <inheritdoc />

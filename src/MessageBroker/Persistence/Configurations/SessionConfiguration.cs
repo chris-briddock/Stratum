@@ -17,13 +17,21 @@ public sealed class SessionConfiguration : IEntityTypeConfiguration<Session>
     {
         builder.ToTable("SYSTEM_SESSIONS", opt => opt.IsTemporal());
 
+        builder.HasKey(e => e.Id);
+
         builder.Property(e => e.Id)
                .HasColumnName("id")
                .HasMaxLength(36);
 
+       builder.Property(e => e.ClientApplicationId)
+              .HasColumnName("client_application_id")
+              .HasMaxLength(36)
+              .IsRequired();
+
         builder.Property(e => e.SessionId)
                .HasColumnName("session_id")
-               .HasMaxLength(36);
+               .HasMaxLength(36)
+               .IsRequired();
 
         builder.Property(e => e.UserId)
                .HasColumnName("user_id")

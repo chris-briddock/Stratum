@@ -6,7 +6,6 @@ using Application.Providers;
 using Ardalis.ApiEndpoints;
 using Domain.Entities;
 using Domain.Requests;
-using Domain.ValueObjects;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,29 +17,36 @@ public sealed class PublishEndpoint : EndpointBaseAsync
                                       .WithRequest<PublishRequest>
                                       .WithActionResult
 {
-    public IChannelManager Manager { get; }
-    public IPublisher Publisher { get; }
-    public IEventWriteStore WriteStore { get; }
+    private IChannelManager Manager { get; }
+    private IPublisher Publisher { get; }
+    private IEventWriteStore WriteStore { get; }
+    private ILogger<PublishEndpoint> Logger { get; }
 
     public PublishEndpoint(IChannelManager manager,
                            IPublisher publisher,
-                           IEventWriteStore writeStore)
+                           IEventWriteStore writeStore,
+                           ILogger<PublishEndpoint> logger)
     {
         Manager = manager;
         Publisher = publisher;
         WriteStore = writeStore;
+        Logger = logger;
     }
 
     // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [HttpPost($"{Routes.Publish}")]
+    [HttpPost($"{Routes.Publisher.Publish}")]
     public override async Task<ActionResult> HandleAsync(PublishRequest request,
-                                                   CancellationToken cancellationToken = default)
+                                                        CancellationToken cancellationToken = default)
     {
-        Channel<object> channel = Manager.GetOrCreateTopicChannel<object>(request.Topic, 1000);
+        Channel<object> channel = Manager.GetOrCreateTopicChannel<object>(request.Topic);
 
-        await Publisher.PublishAsync(request.Topic, request.Message, channel);
+        Logger.LogInformation("Publishing message to topic {Topic}", request.Topic);
+
+        await Publisher.PublishAsync(request.Topic, request.Message, channel, cancellationToken);
+
+        Logger.LogInformation("Message published to topic {Topic}", request.Topic);
 
         Event @event = new()
         {
@@ -48,11 +54,15 @@ public sealed class PublishEndpoint : EndpointBaseAsync
             Payload = JsonSerializer.Serialize(request.Message),
             EntityCreationStatus = new EntityStatusProvider<string>().Create("SYSTEM")
         };
+
+        Logger.LogInformation("Writing event to store");
         var result = await WriteStore.AddEventAsync(@event, cancellationToken);
+
+        Logger.LogInformation("Event written to store");
 
         if (!result.Succeeded)
             return StatusCode(StatusCodes.Status500InternalServerError);
-
+        
         return StatusCode(StatusCodes.Status201Created);
     }
 }

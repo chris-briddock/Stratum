@@ -7,6 +7,7 @@ namespace Domain.Entities;
 /// </summary>
 public sealed class Session : Session<string>
 {
+    public override string Id { get; set; } = Guid.NewGuid().ToString();
     public string ClientApplicationId { get; set; } = default!;
 
     /// <summary>

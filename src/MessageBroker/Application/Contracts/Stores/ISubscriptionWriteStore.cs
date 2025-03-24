@@ -21,7 +21,8 @@ public interface ISubscriptionWriteStore
     /// <param name="subscriptionId">The subscription identifier.</param>
     /// <param name="cancellationToken"> Token for canceling the operation.</param>
     /// <returns>A task representing the asynchronous operation. </returns>
-    Task<SubscriptionResult> DeleteSubscriptionAsync(string subscriptionId, CancellationToken cancellationToken = default);
+    Task<SubscriptionResult> DeleteSubscriptionAsync(Subscription subscription,
+                                                                  CancellationToken cancellationToken = default);
     /// <summary>Updates a subscription in the database.</summary>
     /// <param name="subscription">The subscription to update.</param>
     /// <param name="cancellationToken"> Token for canceling the operation.</param>

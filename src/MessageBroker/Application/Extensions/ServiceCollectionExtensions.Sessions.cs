@@ -1,5 +1,3 @@
-using Microsoft.Extensions.DependencyInjection.Extensions;
-
 namespace Application.Extensions;
 
 public static partial class ServiceCollectionExtensions

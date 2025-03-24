@@ -8,7 +8,8 @@ using Persistence.Contexts;
 
 namespace Application.Stores;
 
-public sealed class SubscriptionWriteStore : StoreBase, ISubscriptionWriteStore
+public sealed class SubscriptionWriteStore 
+: StoreBase, ISubscriptionWriteStore
 {
     private WriteContext WriteContext => WriteContextFactory.CreateDbContext(null!);
 

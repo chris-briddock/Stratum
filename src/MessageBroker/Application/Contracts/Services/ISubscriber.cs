@@ -2,7 +2,10 @@ using System.Threading.Channels;
 
 namespace Application.Contracts;
 
-public interface ISubscriber
+public interface ISubscriber<T> where T : class
 {
-    IAsyncEnumerable<T> SubscribeAsync<T>(Channel<object> channel, CancellationToken cancellationToken = default);
+    IAsyncEnumerable<T> SubscribeAsync<TMessage>(Channel<T> channel,
+                                          CancellationToken cancellationToken = default);
+    Task UnsubscribeAsync(Channel<T> channel,
+                         CancellationToken cancellationToken = default);
 }

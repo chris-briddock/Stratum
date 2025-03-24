@@ -12,18 +12,16 @@ public interface IChannelManager
     /// </summary>
     /// <typeparam name="T">The type of messages in the queue.</typeparam>
     /// <param name="topic">The topic associated with the queue channel.</param>
-    /// <param name="capacity">The maximum capacity of the queue channel.</param>
     /// <returns>A channel for the queue.</returns>
-    Channel<Queue<T>> GetOrCreateQueueChannel<T>(string topic, int capacity);
+    Channel<Queue<T>> GetOrCreateQueueChannel<T>(string topic);
 
     /// <summary>
     /// Retrieves or creates a channel for a specific topic.
     /// </summary>
     /// <typeparam name="T">The type of messages in the topic channel.</typeparam>
     /// <param name="topic">The topic for which the channel is created or retrieved.</param>
-    /// <param name="capacity">The maximum capacity of the topic channel.</param>
     /// <returns>A channel for the topic.</returns>
-    Channel<T> GetOrCreateTopicChannel<T>(string topic, int capacity);
+    Channel<T> GetOrCreateTopicChannel<T>(string topic);
 
     /// <summary>
     /// Removes the channel associated with the given topic.
@@ -36,7 +34,7 @@ public interface IChannelManager
     /// Retrieves the list of active topics currently being managed.
     /// </summary>
     /// <returns>An enumerable collection of active topics.</returns>
-    IEnumerable<string> GetActiveTopics();
+    IAsyncEnumerable<string> GetActiveTopics();
 
     /// <summary>
     /// Retrieves the current message count for a specific topic.

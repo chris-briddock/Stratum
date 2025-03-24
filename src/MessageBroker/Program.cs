@@ -1,10 +1,10 @@
 
 using System.Reflection;
+using Api.Middlware;
 using Application.Constants;
 using Application.Contracts;
 using Application.Extensions;
 using Application.Services;
-using AspNetCore.Scalar;
 using ChristopherBriddock.AspNetCore.Extensions;
 using ChristopherBriddock.AspNetCore.HealthChecks;
 using FluentValidation;
@@ -18,7 +18,7 @@ namespace MessageBroker;
 /// <summary>
 /// The entry point for the Web Application.
 /// </summary>
-internal class Program
+public sealed class Program
 {
     /// <summary>
     /// The entry method for the web application.
@@ -33,18 +33,19 @@ internal class Program
             options.ServicesStartConcurrently = true;
             options.ServicesStopConcurrently = true;
         });
-        
+        builder.Services.AddFeatureManagement();
         builder.Services.AddOpenApi();
         builder.Services.AddPersistence();
         builder.Services.AddDataProtection();
-        builder.Services.AddFeatureManagement();
+        builder.Services.AddInMemoryCache();
+        builder.Services.AddDistributedCache(builder.Configuration);
         builder.Services.AddBearerAuthentication(builder.Configuration);
         builder.Services.AddProblemDetails();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddDataProtection();
         builder.Services.AddControllers();
         builder.Services.AddMetrics();
-        builder.Services.AddHybridCache();
+        builder.Services.AddHybridCache(builder.Configuration);
         builder.Services.AddCustomSession();
         builder.Services.AddFluentValidationAutoValidation();
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
@@ -53,7 +54,7 @@ internal class Program
         builder.Services.AddMessageBrokerChannels();
         builder.Services.AddHealthChecks();
         builder.Services.TryAddScoped<IPublisher, Publisher>();
-        builder.Services.TryAddScoped<ISubscriber, Subscriber>();
+        builder.Services.TryAddScoped<ISubscriber<object>, Subscriber>();
         builder.Services.AddResponseCompression();
         builder.Services.AddSqlDatabaseHealthChecks(builder.Configuration.GetConnectionStringOrThrow("WriteConnection"));
         builder.Services.AddRedisHealthCheck(builder.Configuration);
@@ -63,7 +64,10 @@ internal class Program
             app.MapOpenApi();
             app.MapScalarApiReference();
         }
-
+        app.UseSession();
+        app.UseMiddleware<ExceptionMiddleware>();
+        app.UseMiddleware<SessionMiddleware>();
+        app.UseMiddleware<ErrorHandlingMiddleware>();
         app.UseHsts();
         app.MapControllers();
         app.UseCustomHealthCheckMapping();

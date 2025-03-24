@@ -25,6 +25,11 @@ public sealed class ClientApplicationConfiguration : IEntityTypeConfiguration<Cl
                      .HasColumnName("id")
                      .IsRequired();
 
+              builder.Property(ca => ca.SessionId)
+                     .HasMaxLength(36)
+                     .HasColumnName("session_id")
+                     .IsRequired();
+                     
               builder.Property(ca => ca.Name)
                      .HasMaxLength(100)
                      .HasColumnName("name")
@@ -37,6 +42,11 @@ public sealed class ClientApplicationConfiguration : IEntityTypeConfiguration<Cl
 
               builder.HasIndex(ca => ca.ApiKey)
                      .IsUnique();
+              
+              builder.Property(ca => ca.Description)
+                     .HasMaxLength(512)
+                     .HasColumnName("description")
+                     .IsRequired();
 
               builder.Property(e => e.ConcurrencyStamp)
                      .HasColumnName("concurrency_stamp")

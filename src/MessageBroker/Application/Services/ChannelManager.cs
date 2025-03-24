@@ -1,21 +1,29 @@
 using System.Collections.Concurrent;
 using System.Threading.Channels;
 using Application.Contracts;
+using ChristopherBriddock.AspNetCore.Extensions;
 
 namespace MessageBroker.Application.Services;
 
-public sealed class ChannelManager : IChannelManager, IDisposable
+public sealed class ChannelManager : IChannelManager
 {
     private ConcurrentDictionary<string, object> Channels { get; }
 
-    public ChannelManager()
+    public IConfiguration Configuration { get; }
+
+    public ChannelManager(IConfiguration configuration)
     {
         Channels = new();
+        Configuration = configuration;
     }
 
-    public IEnumerable<string> GetActiveTopics()
+    public async IAsyncEnumerable<string> GetActiveTopics()
     {
-        return Channels.Keys;
+        foreach (var topic in Channels.Keys)
+        {
+            yield return topic;
+            await Task.Yield();
+        }
     }
     /// <inheritdoc/>
     public int GetMessageCount(string topic)
@@ -28,10 +36,10 @@ public sealed class ChannelManager : IChannelManager, IDisposable
         throw new KeyNotFoundException($"The topic '{topic}' does not exist.");
     }
     /// <inheritdoc/>
-    public Channel<T> GetOrCreateTopicChannel<T>(string name, int capacity)
+    public Channel<T> GetOrCreateTopicChannel<T>(string name)
     {
         return (Channel<T>)Channels.GetOrAdd(name, _ =>
-            Channel.CreateBounded<T>(new BoundedChannelOptions(capacity)
+            Channel.CreateBounded<T>(new BoundedChannelOptions(Convert.ToInt16(Configuration.GetRequiredValueOrThrow("Channels:Capacity")))
             {
                 SingleReader = false,
                 SingleWriter = false,
@@ -39,10 +47,10 @@ public sealed class ChannelManager : IChannelManager, IDisposable
             }));
     }
     /// <inheritdoc/>
-    public Channel<Queue<T>> GetOrCreateQueueChannel<T>(string name, int capacity)
+    public Channel<Queue<T>> GetOrCreateQueueChannel<T>(string name)
     {
         return (Channel<Queue<T>>)Channels.GetOrAdd(name, _ =>
-            Channel.CreateBounded<Queue<T>>(new BoundedChannelOptions(capacity)
+            Channel.CreateBounded<Queue<T>>(new BoundedChannelOptions(Convert.ToInt16(Configuration.GetRequiredValueOrThrow("Channels:Capacity")))
             {
                 SingleReader = true,
                 SingleWriter = false,
@@ -58,17 +66,5 @@ public sealed class ChannelManager : IChannelManager, IDisposable
             return true;
         }
         return false;
-    }
-    /// <inheritdoc/>
-    public void Dispose()
-    {
-        foreach (var channelObj in Channels.Values)
-        {
-            if (channelObj is Channel<object> channel)
-            {
-                channel.Writer.TryComplete();
-            }
-        }
-        Channels.Clear();
     }
 }

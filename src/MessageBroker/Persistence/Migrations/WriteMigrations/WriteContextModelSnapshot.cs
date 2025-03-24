@@ -45,7 +45,9 @@ namespace MessageBroker.Persistence.Migrations.WriteMigrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)")
+                        .HasColumnName("description");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -65,7 +67,9 @@ namespace MessageBroker.Persistence.Migrations.WriteMigrations
 
                     b.Property<string>("SessionId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(36)");
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)")
+                        .HasColumnName("session_id");
 
                     b.ComplexProperty<Dictionary<string, object>>("EntityCreationStatus", "Domain.Entities.ClientApplication.EntityCreationStatus#EntityCreationStatus<string>", b1 =>
                         {
@@ -230,7 +234,9 @@ namespace MessageBroker.Persistence.Migrations.WriteMigrations
 
                     b.Property<string>("ClientApplicationId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)")
+                        .HasColumnName("client_application_id");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -346,7 +352,9 @@ namespace MessageBroker.Persistence.Migrations.WriteMigrations
 
                     b.Property<string>("ClientApplicationId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(36)");
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)")
+                        .HasColumnName("client_application_id");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -367,7 +375,9 @@ namespace MessageBroker.Persistence.Migrations.WriteMigrations
 
                     b.Property<string>("TopicId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(36)");
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)")
+                        .HasColumnName("topic_id");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -422,6 +432,7 @@ namespace MessageBroker.Persistence.Migrations.WriteMigrations
                             b1.Property<DateTime?>("ModifiedOnUtc")
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType("datetime2")
+                                .HasColumnName("modified_on_utc")
                                 .HasDefaultValueSql("GETUTCDATE()");
                         });
 
@@ -536,6 +547,7 @@ namespace MessageBroker.Persistence.Migrations.WriteMigrations
                             b1.Property<DateTime?>("ModifiedOnUtc")
                                 .ValueGeneratedOnAddOrUpdate()
                                 .HasColumnType("datetime2")
+                                .HasColumnName("modified_on_utc")
                                 .HasDefaultValueSql("GETUTCDATE()");
                         });
 
