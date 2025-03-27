@@ -1,5 +1,5 @@
 
-using Application.Stores;
+using Application.Dtos;
 
 namespace Application.Contracts;
 

@@ -14,8 +14,8 @@ public interface IClientApplicationWriteStore
     /// <param name="clientApplication">The client application to add.</param>
     /// <param name="ctx">A cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    Task<ClientApplicationResult> AddAsync(ClientApplication clientApplication,
-                                           CancellationToken ctx = default);
+    Task<ClientApplicationResult> CreateAsync(ClientApplication clientApplication,
+                                              CancellationToken ctx = default);
 
     /// <summary>
     /// Deletes a client application from the store by its name.

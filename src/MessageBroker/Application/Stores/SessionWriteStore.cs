@@ -2,7 +2,6 @@ using Application.Constants;
 using Application.Contracts;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using MongoDB.Driver;
 using Persistence.Contexts;
 
 namespace Application.Stores;

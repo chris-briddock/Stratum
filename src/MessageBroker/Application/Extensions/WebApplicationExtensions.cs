@@ -16,5 +16,6 @@ public static partial class WebApplicationExtensions
     {
         await Seed.SeedWriteDatabase(app);
         await Seed.SeedReadReplica(app);
+        await Seed.SeedDefaultApplication(app);
     }
 }

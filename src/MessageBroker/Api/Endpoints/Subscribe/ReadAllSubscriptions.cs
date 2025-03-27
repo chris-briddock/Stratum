@@ -1,12 +1,12 @@
+using Api.Constants;
 using Application.Contracts;
 using Application.Dtos;
-using Application.Extensions;
 using Ardalis.ApiEndpoints;
 using Domain.Requests;
 using Domain.Responses;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Constants;
+namespace Api.Endpoints;
 
 [Route($"{Routes.BaseRoute.Name}")]
 public sealed class ReadAllSubscriptions : EndpointBaseAsync
@@ -34,7 +34,7 @@ public sealed class ReadAllSubscriptions : EndpointBaseAsync
         var response = new ReadAllSubscriptionsResponse<List<SubscriptionDto>>()
         {
             Subscriptions = subscriptions,
-            IsSuccess = true
+            IsSuccess = true,
         };
         return Ok(response);
     }

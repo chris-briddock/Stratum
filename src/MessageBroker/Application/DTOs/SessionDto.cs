@@ -1,4 +1,4 @@
-﻿namespace Application.DTOs;
+﻿namespace Application.Dtos;
 
 /// <summary>
 /// Represents a data transfer object (DTO) for a user session.

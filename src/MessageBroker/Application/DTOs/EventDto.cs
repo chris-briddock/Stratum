@@ -1,6 +1,6 @@
 using Domain.ValueObjects;
 
-namespace Application.DTOs;
+namespace Application.Dtos;
 
 /// <summary>
 /// Represents a data transfer object for an event, encapsulating its type,

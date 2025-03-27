@@ -6,8 +6,6 @@ using Application.Providers;
 using Ardalis.ApiEndpoints;
 using Domain.Entities;
 using Domain.Requests;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Endpoints;

@@ -5,18 +5,32 @@ using ChristopherBriddock.AspNetCore.Extensions;
 
 namespace Application.Services;
 
+/// <summary>
+/// Manages the creation and removal of channels.
+/// </summary>
 public sealed class ChannelManager : IChannelManager
 {
+    /// <summary>
+    /// The collection of channels.
+    /// </summary>
     private ConcurrentDictionary<string, object> Channels { get; }
 
+    /// <summary>
+    /// The configuration instance.
+    /// </summary>
     public IConfiguration Configuration { get; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ChannelManager"/>
+    /// </summary>
+    /// <param name="configuration">The configuration instance.</param>
     public ChannelManager(IConfiguration configuration)
     {
         Channels = new();
         Configuration = configuration;
     }
 
+    /// <inheritdoc/>
     public async IAsyncEnumerable<string> GetActiveTopics()
     {
         foreach (var topic in Channels.Keys)

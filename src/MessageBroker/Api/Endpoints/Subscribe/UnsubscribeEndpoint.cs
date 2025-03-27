@@ -28,7 +28,7 @@ public sealed class UnsubscribeEndpoint : EndpointBaseAsync
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public override async Task<ActionResult> HandleAsync(UnsubscribeRequest request,
-                                                   CancellationToken cancellationToken = default)
+                                                         CancellationToken cancellationToken = default)
     {
             Channel<object> channel = Manager.GetOrCreateTopicChannel<object>(request.TopicName);
 

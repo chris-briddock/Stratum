@@ -1,6 +1,6 @@
 using Domain.ValueObjects;
 
-namespace Application.Stores;
+namespace Application.Dtos;
 
 /// <summary>
 /// Represents a client application and its associated metadata, including identification, 

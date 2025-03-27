@@ -1,6 +1,6 @@
 using Application.Constants;
 using Application.Contracts;
-using Application.DTOs;
+using Application.Dtos;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Contexts;

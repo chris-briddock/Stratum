@@ -36,7 +36,7 @@ public sealed class ClientApplicationWriteStore : StoreBase, IClientApplicationW
     }
 
     /// <inheritdoc />
-    public async Task<ClientApplicationResult> AddAsync(ClientApplication clientApplication,
+    public async Task<ClientApplicationResult> CreateAsync(ClientApplication clientApplication,
                                                         CancellationToken ctx = default)
     {
         ArgumentNullException.ThrowIfNull(clientApplication);
@@ -103,7 +103,7 @@ public sealed class ClientApplicationWriteStore : StoreBase, IClientApplicationW
             var client = await DbSet.SingleOrDefaultAsync(x => x.Name == clientName, ctx);
             if (client is not null)
             {
-                client.EntityDeletionStatus = new EntityStatusProvider<string>().Delete("SYSTEM");
+                client.EntityDeletionStatus = new EntityStatusProvider<string>().Delete("SYSTEM", true, DateTime.UtcNow);
                 DbSet.Update(client);
                 await WriteContext.SaveChangesAsync(ctx);
             }

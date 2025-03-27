@@ -1,5 +1,3 @@
-using Nest;
-
 namespace Api.Constants;
 
 /// <summary>
