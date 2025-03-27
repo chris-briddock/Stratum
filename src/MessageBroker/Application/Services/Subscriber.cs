@@ -4,10 +4,13 @@ using Application.Contracts;
 
 namespace Application.Services;
 
+/// <summary>
+/// Represents a subscriber that can subscribe to a channel and receive messages.
+/// </summary>
 public sealed class Subscriber : ISubscriber<object>
 {
 
-
+    /// <inheritdoc/>
     public async IAsyncEnumerable<object> SubscribeAsync<TMessage>(Channel<object> channel,
                                                                    [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
@@ -24,7 +27,7 @@ public sealed class Subscriber : ISubscriber<object>
             }
         }
     }
-
+    /// <inheritdoc/>
     public async Task UnsubscribeAsync(Channel<object> channel,
                                        CancellationToken cancellationToken = default)
     {

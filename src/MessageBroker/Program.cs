@@ -36,6 +36,8 @@ public sealed class Program
         builder.Services.AddFeatureManagement();
         builder.Services.AddOpenApi();
         builder.Services.AddPersistence();
+        builder.Services.AddStores();
+        builder.Services.AddServices();
         builder.Services.AddDataProtection();
         builder.Services.AddInMemoryCache();
         builder.Services.AddDistributedCache(builder.Configuration);
@@ -51,10 +53,7 @@ public sealed class Program
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         builder.Services.AddVersioning(1,0);
         builder.Services.AddDistributedMemoryCache();
-        builder.Services.AddMessageBrokerChannels();
         builder.Services.AddHealthChecks();
-        builder.Services.TryAddScoped<IPublisher, Publisher>();
-        builder.Services.TryAddScoped<ISubscriber<object>, Subscriber>();
         builder.Services.AddResponseCompression();
         builder.Services.AddSqlDatabaseHealthChecks(builder.Configuration.GetConnectionStringOrThrow("WriteConnection"));
         builder.Services.AddRedisHealthCheck(builder.Configuration);

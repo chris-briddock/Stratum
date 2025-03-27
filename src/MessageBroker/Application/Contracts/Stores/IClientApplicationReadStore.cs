@@ -1,5 +1,4 @@
 
-using Application.Extensions;
 using Application.Stores;
 
 namespace Application.Contracts;
@@ -31,9 +30,9 @@ public interface IClientApplicationReadStore
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a paginated list of client applications.
     /// </returns>
-    Task<PaginatedList<ClientApplicationDto<string>>> GetClientsAsync(int page = 1,
-                                                                      int pageSize = 10,
-                                                                      CancellationToken ctx = default);
+    Task<List<ClientApplicationDto<string>>> GetClientsAsync(int page = 1,
+                                                             int pageSize = 10,
+                                                             CancellationToken ctx = default);
 
     /// <summary>
     /// Retrieves a paginated list of deleted client applications.
@@ -44,8 +43,8 @@ public interface IClientApplicationReadStore
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a paginated list of deleted client applications.
     /// </returns>
-    Task<PaginatedList<ClientApplicationDto<string>>> GetDeletedClients(int page = 1,
-                                                                        int pageSize = 10,
-                                                                        CancellationToken ctx = default);
+    Task<List<ClientApplicationDto<string>>> GetDeletedClients(int page = 1,
+                                                               int pageSize = 10,
+                                                               CancellationToken ctx = default);
 }
 

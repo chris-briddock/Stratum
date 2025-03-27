@@ -1,5 +1,6 @@
 using Application.Contracts;
-using Application.Stores;
+using Application.Specifications;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Persistence.Contexts;
@@ -9,6 +10,11 @@ namespace Application.Extensions;
 
 public static partial class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Add persistence layer to the service collection
+    /// </summary>
+     /// <param name="services">The <see cref="IServiceCollection"/> to add the services to.</param>
+    /// <returns>The modified <see cref="IServiceCollection"/> instance.</returns>
     public static IServiceCollection AddPersistence(this IServiceCollection services)
     { 
         services.AddDbContext<BaseContext>(ServiceLifetime.Singleton);
@@ -18,14 +24,8 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IDesignTimeDbContextFactory<ReadContext>, ReadContextFactory>();
         services.AddSingleton<IDesignTimeDbContextFactory<WriteContext>, WriteContextFactory>();
 
-        services.TryAddScoped<ISessionReadStore, SessionReadStore>();
-        services.TryAddScoped<ISessionWriteStore, SessionWriteStore>();
-        services.TryAddScoped<IClientApplicationReadStore, ClientApplicationReadStore>();
-        services.TryAddScoped<IClientApplicationWriteStore, ClientApplicationWriteStore>();
-        services.TryAddScoped<IEventReadStore, EventReadStore>();
-        services.TryAddScoped<IEventWriteStore, EventWriteStore>();   
-        services.TryAddScoped<ISubscriptionReadStore, SubscriptionReadStore>();
-        services.TryAddScoped<ISubscriptionWriteStore, SubscriptionWriteStore>();     
+        services.TryAddScoped<ISpecification<ClientApplication>, ActiveClientSpecification>();
+        services.TryAddScoped<ISpecification<ClientApplication>, InactiveClientSpecification>();
 
         return services;
     }

@@ -7,7 +7,7 @@ using OpenTelemetry.Trace;
 /// <summary>
 /// Provides extension methods for configuring OpenTelemetry in an <see cref="IHostApplicationBuilder"/>.
 /// </summary>
-public static class HostApplicationBuilderExtensions
+public static partial class HostApplicationBuilderExtensions
 {
     /// <summary>
     /// Configures OpenTelemetry for the application, setting up tracing, metrics, and logging.

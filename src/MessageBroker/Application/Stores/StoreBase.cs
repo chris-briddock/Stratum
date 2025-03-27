@@ -1,3 +1,6 @@
+using Application.Contracts;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Persistence.Contexts;
 using ZiggyCreatures.Caching.Fusion;
@@ -25,7 +28,7 @@ public abstract class StoreBase
     /// </summary>
     public IDesignTimeDbContextFactory<WriteContext> WriteContextFactory => Services.GetRequiredService<IDesignTimeDbContextFactory<WriteContext>>();
 
-    
+
     public IFusionCache FusionCache => Services.GetRequiredService<IFusionCache>();
 
     /// <summary>
@@ -36,5 +39,4 @@ public abstract class StoreBase
     {
         Services = services ?? throw new ArgumentNullException(nameof(services));
     }
-
 }

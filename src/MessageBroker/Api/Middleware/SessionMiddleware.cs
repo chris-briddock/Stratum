@@ -33,7 +33,6 @@ public sealed class SessionMiddleware
     /// <returns>A task that represents the completion of request processing.</returns>
     public async Task InvokeAsync(HttpContext context)
     {
-        ClientApplication app = new();
         string? emailAddress = context.User.FindFirst(ClaimTypes.Email)?.Value;
         bool shouldCreate = false;
         using AsyncServiceScope scope = context.RequestServices.CreateAsyncScope();

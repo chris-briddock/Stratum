@@ -1,7 +1,3 @@
-// filepath: /home/chris/Projects/MessageBroker/src/MessageBroker/Domain/Responses/ReadAllSubscriptionsResponse.cs
-using Application.Extensions;
-using Domain.Entities;
-
 namespace Domain.Responses;
 
 /// <summary>

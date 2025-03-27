@@ -2,7 +2,7 @@ namespace Application.Extensions;
 /// <summary>
 /// Provides extension methods for HttpContext.
 /// </summary>
-public static class HttpContextExtensions
+public static partial class HttpContextExtensions
 {
     /// <summary>
     /// Gets the client's IP address from the request.

@@ -12,72 +12,80 @@ namespace Application.Stores;
 /// </summary>
 public sealed class SessionReadStore : StoreBase, ISessionReadStore
 {
-
     /// <summary>
     /// The database context used for performing read operations.
     /// </summary>
     private ReadContext ReadContext => ReadContextFactory.CreateDbContext(null!);
     
-    private DbSet<Session> DbSet => ReadContext.Set<Session>();
     /// <summary>
-    /// Initializes a new instance of the <see cref="SessionWriteStore"/> class.
+    /// Initializes a new instance of the <see cref="SessionReadStore"/> class.
     /// </summary>
     /// <param name="services">The service provider used to resolve dependencies.</param>
     public SessionReadStore(IServiceProvider services) : base(services)
     {
     }
+
     /// <inheritdoc/>
-    public async Task<List<SessionDto>> GetAsync(string userId,
-                                                 CancellationToken ctx = default)
+    public async Task<List<SessionDto>> GetAsync(string applicationId, CancellationToken ctx = default)
     {
-        // Use FusionCache to manage caching
-        var cacheKey = userId;  // Cache key based on the UserId
+        ArgumentNullException.ThrowIfNull(applicationId);
+
+        string cacheKey = $"sessions_{applicationId}";
+
+        var compiledQuery = EF.CompileAsyncQuery(
+            (ReadContext context) => context.Set<Session>()
+                .AsNoTracking()
+                .Select(s => new SessionDto
+                {
+                    Status = s.Status,
+                    ApplicationId = s.ClientApplicationId,
+                    UserId = s.UserId,
+                    StartDateTime = s.StartDateTime,
+                    EndDateTime = s.EndDateTime,
+                    UserAgent = s.UserAgent,
+                    IpAddress = s.IpAddress
+                })
+                .ToList()
+        );
 
         var result = await FusionCache.GetOrSetAsync<List<SessionDto>>(
             cacheKey,
-            async (ctx, ct) =>
+            async (factory, token) =>
             {
-                ctx.Tags = [CacheTagConstants.Sessions];
-                // Query the database if the value is not found in the cache
-                return await DbSet
-                    .Select(s => new SessionDto
-                    {
-                        Status = s.Status,
-                        ApplicationId = s.ClientApplicationId,
-                        UserId = s.UserId,
-                        StartDateTime = s.StartDateTime,
-                        EndDateTime = s.EndDateTime,
-                        UserAgent = s.UserAgent,
-                        IpAddress = s.IpAddress
-                    })
-                    .ToListAsync(ct);
+                factory.Tags = [CacheTagConstants.Sessions];
+                return await compiledQuery(ReadContext);
             },
             token: ctx
         );
 
         return result;
     }
-    /// <inheritdoc/>
-    public async Task<Session?> GetByIdAsync(string sessionId,
-                                             CancellationToken cancellation = default)
-    {
-        var cacheKey = sessionId;
 
-        var result = await FusionCache.GetOrSetAsync<Session>(
+    /// <inheritdoc/>
+    public async Task<Session?> GetByIdAsync(string sessionId, CancellationToken cancellation = default)
+    {
+        if (string.IsNullOrEmpty(sessionId))
+            throw new ArgumentNullException(nameof(sessionId), "Session ID must not be null or empty.");
+        
+        string cacheKey = $"session_{sessionId}";
+
+        var compiledQuery = EF.CompileAsyncQuery(
+            (ReadContext context, string id) => context.Set<Session>()
+                .AsNoTracking()
+                .Where(x => x.SessionId == id)
+                .FirstOrDefault()
+        );
+
+        var result = await FusionCache.GetOrSetAsync<Session?>(
             cacheKey,
-            async (ctx, ct) =>
+            async (factory, token) =>
             {
-                ctx.Tags = [CacheTagConstants.Sessions];
-                var query = await DbSet
-                    .Where(x => x.SessionId == sessionId)
-                    .FirstOrDefaultAsync(ct);
-                // Query the database if the value is not found in the cache
-                return query!;
+                factory.Tags = [CacheTagConstants.Sessions];
+                return await compiledQuery(ReadContext, sessionId);
             },
             token: cancellation
         );
 
         return result;
     }
-
 }

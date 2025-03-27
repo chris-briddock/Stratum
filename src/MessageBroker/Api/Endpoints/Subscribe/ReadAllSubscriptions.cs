@@ -26,12 +26,12 @@ public sealed class ReadAllSubscriptions : EndpointBaseAsync
     public override async Task<ActionResult> HandleAsync(ReadAllSubscriptionsRequest request,
                                                          CancellationToken cancellationToken = default)
     {
-        PaginatedList<SubscriptionDto>? subscriptions = await ReadStore.GetSubscriptionsAsync(request.Page, request.PageSize, cancellationToken);
+        var subscriptions = await ReadStore.GetSubscriptionsAsync(request.Page, request.PageSize, cancellationToken);
 
         if (subscriptions is null)
             return NotFound();
 
-        var response = new ReadAllSubscriptionsResponse<PaginatedList<SubscriptionDto>>()
+        var response = new ReadAllSubscriptionsResponse<List<SubscriptionDto>>()
         {
             Subscriptions = subscriptions,
             IsSuccess = true

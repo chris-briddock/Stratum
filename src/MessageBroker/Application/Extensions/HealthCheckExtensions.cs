@@ -7,7 +7,7 @@ using Microsoft.FeatureManagement;
 /// <summary>
 /// A collection of extension methods for health checks.
 /// </summary>
-public static class HealthCheckExtensions
+public static partial class HealthCheckExtensions
 {
     /// <summary>
     /// Adds a Redis health check to the service collection if the Cache feature flag is enabled.

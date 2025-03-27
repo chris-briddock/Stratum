@@ -72,8 +72,8 @@ public static partial class ServiceCollectionExtensions
                 .WithDefaultEntryOptions(opt =>
                 {
                     opt.Duration = TimeSpan.FromMinutes(5);
-                    opt.SetDistributedCacheFailSafeOptions(TimeSpan.FromMinutes(10));
-                    opt.SetFailSafe(true, TimeSpan.FromMinutes(10));
+                    opt.SetDistributedCacheFailSafeOptions(TimeSpan.FromMinutes(2));
+                    opt.SetFailSafe(true, TimeSpan.FromMinutes(2));
                 })
                 .WithSystemTextJsonSerializer()
                 .WithDistributedCache(new RedisCache(new RedisCacheOptions() { Configuration = connectionString }))

@@ -1,8 +1,11 @@
 using Application.Constants;
 using Application.Contracts;
 using Application.Extensions;
+using Application.Specifications;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
+using Persistence.Contexts;
 
 namespace Application.Stores;
 
@@ -11,10 +14,8 @@ namespace Application.Stores;
 /// </summary>
 public sealed class ClientApplicationReadStore : StoreBase, IClientApplicationReadStore
 {
-    /// <summary>
-    /// Represents the collection of <see cref="ClientApplication"/>in the database.
-    /// </summary>
-    private DbSet<ClientApplication> DbSet => ReadContextFactory.CreateDbContext(null!).Set<ClientApplication>();
+    private ReadContext ReadContext => ReadContextFactory.CreateDbContext(null!);
+
     /// <summary>
     /// Initializes a new instance of <see cref="ClientApplicationReadStore"/>
     /// </summary>
@@ -23,41 +24,53 @@ public sealed class ClientApplicationReadStore : StoreBase, IClientApplicationRe
     {
     }
     /// <inheritdoc />
-    public async Task<PaginatedList<ClientApplicationDto<string>>> GetClientsAsync(
+ public async Task<List<ClientApplicationDto<string>>> GetClientsAsync(
     int page = 1,
     int pageSize = 10,
     CancellationToken ctx = default)
-    {
-        if (page <= 0) throw new ArgumentOutOfRangeException(nameof(page), "Page number must be greater than zero.");
-        if (pageSize <= 0) throw new ArgumentOutOfRangeException(nameof(pageSize), "Page size must be greater than zero.");
+{
+    if (page <= 0) throw new ArgumentOutOfRangeException(nameof(page), "Page number must be greater than zero.");
+    if (pageSize <= 0) throw new ArgumentOutOfRangeException(nameof(pageSize), "Page size must be greater than zero.");
 
-        // Create a cache key based on page and pageSize
-        string cacheKey = $"clients_{page}_{pageSize}";
+    // Create a cache key based on page and pageSize
+    string cacheKey = $"clients_{page}_{pageSize}";
 
-        var clients = await FusionCache.GetOrSetAsync<PaginatedList<ClientApplicationDto<string>>>(
-            cacheKey,
-            async (ctx, cacheToken) =>
+     ISpecification<ClientApplication>[] specs = [new ActiveClientSpecification()];
+
+    // Define the compiled query
+    var compiledQuery = EF.CompileAsyncQuery(
+        (ReadContext context, int skip, int take) =>
+            context.Set<ClientApplication>()
+            .AsNoTracking()
+            .Apply(specs)
+            .Select(x => new ClientApplicationDto<string>
             {
-                ctx.Tags = [CacheTagConstants.Clients];
+                Name = x.Name,
+                ApiKey = x.ApiKey,
+                Description = x.Description,
+                EntityCreationStatus = x.EntityCreationStatus,
+                EntityModificationStatus = x.EntityModificationStatus,
+                EntityDeletionStatus = x.EntityDeletionStatus
+            })
+            .Skip(skip)
+            .Take(take)
+            .ToList()
+    );
 
-                // Fetch data from DbSet and project to ClientApplicationDto
-                var clientList = await DbSet.Select(x => new ClientApplicationDto<string>()
-                {
-                    Name = x.Name,
-                    ApiKey = x.ApiKey,
-                    Description = x.Description,
-                    EntityCreationStatus = x.EntityCreationStatus,
-                    EntityModificationStatus = x.EntityModificationStatus,
-                    EntityDeletionStatus = x.EntityDeletionStatus
-                }).ToPaginatedListAsync(page, pageSize, cacheToken);
+    // Use FusionCache to retrieve or set the cached data
+    var clients = await FusionCache.GetOrSetAsync<List<ClientApplicationDto<string>>>(
+        cacheKey,
+        async (factory, ctxToken) =>
+        {
+            factory.Tags = [CacheTagConstants.Clients];
+             return await compiledQuery(ReadContext, (page - 1) * pageSize, pageSize);
+        },
+        token: ctx
+    );
 
-                return clientList;
-            },
-            token: ctx
-        );
+    return clients;
+}
 
-        return clients;
-    }
     /// <inheritdoc />
     public async Task<ClientApplicationDto<string>> GetClientByName(
     string name,
@@ -68,24 +81,28 @@ public sealed class ClientApplicationReadStore : StoreBase, IClientApplicationRe
 
         string cacheKey = "client_by_name_" + name;
 
+        ISpecification<ClientApplication>[] specs = [new ActiveClientSpecification()];
+
+        var compiledQuery = EF.CompileAsyncQuery((ReadContext context) => 
+                context.Set<ClientApplication>()
+                .AsNoTracking()
+                .Apply(specs)
+                .Select(x => new ClientApplicationDto<string>()
+                {
+                    Name = x.Name,
+                    ApiKey = x.ApiKey,
+                    Description = x.Description,
+                    EntityCreationStatus = x.EntityCreationStatus,
+                    EntityModificationStatus = x.EntityModificationStatus,
+                    EntityDeletionStatus = x.EntityDeletionStatus
+                }).Single()); 
+        
         var cachedClient = await FusionCache.GetOrSetAsync<ClientApplicationDto<string>>(
             cacheKey,
-            async (cacheCtx, cacheToken) =>
+            async (factory, cancellationToken) =>
             {
-                cacheCtx.Tags = [CacheTagConstants.ClientByName];
-
-                // Fetch data from DbSet and project to ClientApplicationDto
-                return await DbSet.Where(x => x.Name == name)
-                                  .Select(x => new ClientApplicationDto<string>()
-                                  {
-                                      Name = x.Name,
-                                      ApiKey = x.ApiKey,
-                                      Description = x.Description,
-                                      EntityCreationStatus = x.EntityCreationStatus,
-                                      EntityModificationStatus = x.EntityModificationStatus,
-                                      EntityDeletionStatus = x.EntityDeletionStatus
-                                  })
-                                  .SingleAsync(cacheToken); // Fetch single record
+                factory.Tags = [CacheTagConstants.ClientByName];
+                return await compiledQuery(ReadContext);
             },
             token: ctx
         );
@@ -93,7 +110,7 @@ public sealed class ClientApplicationReadStore : StoreBase, IClientApplicationRe
         return cachedClient;
     }
     /// <inheritdoc />
-    public async Task<PaginatedList<ClientApplicationDto<string>>> GetDeletedClients(
+    public async Task<List<ClientApplicationDto<string>>> GetDeletedClients(
         int page = 1,
         int pageSize = 10,
         CancellationToken ctx = default!)
@@ -104,25 +121,31 @@ public sealed class ClientApplicationReadStore : StoreBase, IClientApplicationRe
             throw new ArgumentOutOfRangeException(nameof(pageSize), "Page size must be greater than zero.");
 
         string cacheKey = "delete_clients_" + page + "_" + pageSize;
+        
+        ISpecification<ClientApplication>[] specs = [new InactiveClientSpecification()];
 
-        var cachedData = await FusionCache.GetOrSetAsync<PaginatedList<ClientApplicationDto<string>>>(
+        var compiledQuery = EF.CompileAsyncQuery(
+            (ReadContext context, int skip, int take) => 
+            context.Set<ClientApplication>()
+                   .AsNoTracking()
+                   .Apply(specs)
+                   .Select(x => new ClientApplicationDto<string>()
+                    {
+                        Name = x.Name,
+                        ApiKey = x.ApiKey,
+                        Description = x.Description,
+                        EntityCreationStatus = x.EntityCreationStatus,
+                        EntityModificationStatus = x.EntityModificationStatus,
+                        EntityDeletionStatus = x.EntityDeletionStatus
+                    }).ToList());
+
+        var cachedData = await FusionCache.GetOrSetAsync<List<ClientApplicationDto<string>>>(
             cacheKey,
-            async (cacheCtx, cacheToken) =>
+            async (factory, ctxToken) =>
             {
-                cacheCtx.Tags = [CacheTagConstants.DeletedClients];
+                factory.Tags = [CacheTagConstants.DeletedClients];
 
-                // Fetch data from DbSet and project to ClientApplicationDto
-                return await DbSet.Where(x => x.EntityDeletionStatus.IsDeleted == true)
-                                  .Select(x => new ClientApplicationDto<string>()
-                                  {
-                                      Name = x.Name,
-                                      ApiKey = x.ApiKey,
-                                      Description = x.Description,
-                                      EntityCreationStatus = x.EntityCreationStatus,
-                                      EntityModificationStatus = x.EntityModificationStatus,
-                                      EntityDeletionStatus = x.EntityDeletionStatus
-                                  })
-                                  .ToPaginatedListAsync(page, pageSize, cacheToken);
+                return await compiledQuery(ReadContext, page, pageSize);
             },
             token: ctx
         );

@@ -3,7 +3,7 @@ using System.Threading.Channels;
 using Application.Contracts;
 using ChristopherBriddock.AspNetCore.Extensions;
 
-namespace MessageBroker.Application.Services;
+namespace Application.Services;
 
 public sealed class ChannelManager : IChannelManager
 {

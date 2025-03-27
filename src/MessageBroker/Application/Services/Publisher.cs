@@ -3,8 +3,12 @@ using Application.Contracts;
 
 namespace Application.Services;
 
+/// <summary>
+/// Represents a service for publishing messages to a channel.
+/// </summary>
 public sealed class Publisher : IPublisher
 {
+    /// <inheritdoc/>
     public async Task PublishAsync<TMessage>(string topic,
                                              TMessage message,
                                              Channel<object> channel,

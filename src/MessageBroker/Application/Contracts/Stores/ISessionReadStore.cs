@@ -11,11 +11,12 @@ public interface ISessionReadStore
     /// <summary>
     /// Retrieves a list of sessions associated with the specified user ID.
     /// </summary>
-    /// <param name="userId">The ID of the user whose sessions are to be retrieved.</param>
+    /// <param name="applicationId">The ID of the user whose sessions are to be retrieved.</param>
     /// <param name="cancellation">A token that can be used to cancel the operation.</param>
     /// <returns>A task representing the asynchronous operation, with a list of <see cref="SessionDto"/> objects as the result.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the userId is null or empty.</exception>
-    Task<List<SessionDto>> GetAsync(string userId, CancellationToken cancellation = default);
+    Task<List<SessionDto>> GetAsync(string applicationId,
+                                    CancellationToken cancellation = default);
 
     /// <summary>
     /// Retrieves a session by its unique session ID.

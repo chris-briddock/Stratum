@@ -36,11 +36,18 @@ public sealed class ClientApplicationWriteStore : StoreBase, IClientApplicationW
     }
 
     /// <inheritdoc />
-    public async Task<ClientApplicationResult> AddAsync(ClientApplication clientApplication, CancellationToken ctx = default)
+    public async Task<ClientApplicationResult> AddAsync(ClientApplication clientApplication,
+                                                        CancellationToken ctx = default)
     {
+        ArgumentNullException.ThrowIfNull(clientApplication);
+
         try
         {
-            await DbSet.AddAsync(clientApplication, ctx);
+            var compiledQuery = EF.CompileAsyncQuery(
+                (WriteContext context ) => context.Set<ClientApplication>()
+                     .AddAsync(clientApplication, ctx));
+            
+            await compiledQuery(WriteContext);
             await WriteContext.SaveChangesAsync(ctx);
 
             return ClientApplicationResult.Success();   
@@ -60,8 +67,11 @@ public sealed class ClientApplicationWriteStore : StoreBase, IClientApplicationW
     }
 
     /// <inheritdoc />
-    public async Task<ClientApplicationResult> UpdateAsync(ClientApplication clientApplication, CancellationToken ctx = default)
+    public async Task<ClientApplicationResult> UpdateAsync(ClientApplication clientApplication,
+                                                           CancellationToken ctx = default)
     {
+        ArgumentNullException.ThrowIfNull(clientApplication);
+
         try
         {
             DbSet.Update(clientApplication);
@@ -86,6 +96,8 @@ public sealed class ClientApplicationWriteStore : StoreBase, IClientApplicationW
     /// <inheritdoc />
     public async Task<ClientApplicationResult> DeleteAsync(string clientName, CancellationToken ctx = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(clientName);
+        
         try
         {
             var client = await DbSet.SingleOrDefaultAsync(x => x.Name == clientName, ctx);
